@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>19 练习①中奖诈骗 · 假消息判断指南</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <section class="slide accent-slide">
+    <img class="mini-mascot" src="../images/mascot.png" alt="查查爷爷">
+    <div class="slide-inner">
+      <span class="kicker">练习 ①　换您当侦探</span>
+      <div class="quiz">
+        <div class="quiz-q">
+          <div class="quiz-msg">「恭喜您！您的手机号在本台后台抽中二等奖 <b>18万元</b>，请点击链接填写银行卡领取奖金！」</div>
+          <div class="think">🤔 先想想：哪里不对劲？</div>
+          <button class="reveal-btn" onclick="this.nextElementSibling.classList.toggle('show')">👆 点我看破绽</button>
+          <div class="answer">
+            <div class="atitle">🔎 破绽在这里：</div>
+            <div class="aitem"><span class="x">✗</span><div>没参加过抽奖，怎么会中奖？<b>天上不会掉馅饼</b></div></div>
+            <div class="aitem"><span class="x">✗</span><div>正规活动<b>绝不会</b>要银行卡号、密码、验证码</div></div>
+            <div class="aitem"><span class="x">✗</span><div>点链接填卡号 = 把钱包送给骗子</div></div>
+          </div>
+        </div>
+        <div class="figure"><img src="../images/quiz_prize.png" alt="中奖诈骗"></div>
+      </div>
+    </div>
+  </section>
+<script src="../assets/slide.js"></script>
+</body>
+</html>

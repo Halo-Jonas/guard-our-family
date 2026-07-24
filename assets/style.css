@@ -1,0 +1,239 @@
+/* =========================================================================
+   假消息判断指南 — 共享样式（单一样式源）
+   所有 slides/*.html 页面都引用这个文件。改这里 = 全局统一生效。
+   ========================================================================= */
+:root{
+  --blue-deep:#1a3a6b;
+  --blue:#2560a8;
+  --blue-mid:#3b7dd8;
+  --blue-soft:#e8f1fb;
+  --blue-line:#bcd4f0;
+  --ink:#1f2d3d;
+  --ink-soft:#41556b;
+  --warm:#f5b23e;
+  --warm-deep:#e08a1e;
+  --red:#d9483b;
+  --green:#2e9e6b;
+  --paper:#fbfcfe;
+  --paper2:#f2f7fd;
+  --shadow:0 12px 40px rgba(26,58,107,.16);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{
+  font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",sans-serif;
+  background:var(--blue-deep);
+  color:var(--ink);
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ============ 单页布局 ============ */
+/* 每个 slides/*.html 内含一个 .slide，占满整个 iframe/视口 */
+.slide{
+  width:100vw;
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:3.5vh 5vw 4vh;
+  position:relative;
+  overflow:hidden;
+  background:linear-gradient(160deg,var(--paper) 0%,var(--paper2) 100%);
+}
+.slide-inner{
+  width:100%;
+  max-width:1180px;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
+/* 背景铺底：柔和蓝白 */
+.slide.cover-slide{background:linear-gradient(160deg,#eaf2fc 0%,#dcebfb 100%);}
+.slide.accent-slide{background:linear-gradient(160deg,#f0f6fd 0%,#e2eefb 100%);}
+.slide.dark-slide{background:linear-gradient(160deg,#1a3a6b 0%,#24518f 100%);}
+
+/* ============ 通用文字 ============ */
+.kicker{
+  display:inline-block;
+  background:var(--blue);
+  color:#fff;
+  font-size:1.5rem;
+  font-weight:800;
+  padding:.35em .95em;
+  border-radius:999px;
+  margin-bottom:.7em;
+  letter-spacing:.04em;
+  box-shadow:0 6px 18px rgba(37,96,168,.28);
+}
+h1{font-size:4.4rem;line-height:1.15;color:var(--blue-deep);font-weight:900;letter-spacing:.01em;}
+h2{font-size:3.1rem;line-height:1.2;color:var(--blue-deep);font-weight:900;margin-bottom:.5em;}
+.lead{font-size:2rem;line-height:1.6;color:var(--ink-soft);font-weight:500;}
+p{font-size:1.7rem;line-height:1.7;color:var(--ink);}
+
+/* 金句框 */
+.punch{
+  background:var(--warm);
+  color:#3a2600;
+  font-size:2.3rem;
+  font-weight:900;
+  line-height:1.45;
+  padding:.75em 1em;
+  border-radius:18px;
+  box-shadow:0 10px 28px rgba(224,138,30,.28);
+  border:3px solid var(--warm-deep);
+}
+.punch.blue{background:var(--blue);color:#fff;border-color:var(--blue-deep);box-shadow:0 10px 28px rgba(37,96,168,.3);}
+
+/* 卡片列表 */
+.cards{display:grid;gap:1.1rem;}
+.card{
+  background:#fff;
+  border:2px solid var(--blue-line);
+  border-radius:16px;
+  padding:1.1em 1.3em;
+  font-size:1.65rem;
+  line-height:1.55;
+  color:var(--ink);
+  box-shadow:0 6px 18px rgba(26,58,107,.07);
+  display:flex;
+  align-items:flex-start;
+  gap:.7em;
+}
+.card .ic{font-size:1.9rem;flex-shrink:0;line-height:1.2;}
+.card b{color:var(--blue);}
+
+/* 图文两栏 */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center;height:100%;}
+.two-col.img-left{grid-template-columns:1fr 1.05fr;}
+.figure{
+  display:flex;align-items:center;justify-content:center;height:100%;
+}
+.figure img{
+  max-width:100%;max-height:76vh;
+  border-radius:22px;
+  box-shadow:var(--shadow);
+  border:5px solid #fff;
+  outline:2px solid var(--blue-line);
+}
+.col-text{display:flex;flex-direction:column;justify-content:center;gap:1.1rem;}
+
+.dark-slide h1,.dark-slide h2{color:#fff;}
+.dark-slide .lead,.dark-slide p{color:#e6eefb;}
+
+/* 大口诀 */
+.mantra{display:flex;gap:1.2rem;flex-wrap:wrap;justify-content:center;margin:1em 0;}
+.mantra .word{
+  background:#fff;
+  color:var(--blue-deep);
+  font-size:3.4rem;
+  font-weight:900;
+  padding:.35em .7em;
+  border-radius:18px;
+  box-shadow:0 10px 26px rgba(0,0,0,.18);
+  border:3px solid var(--warm);
+}
+.mantra .word.no{background:var(--red);color:#fff;border-color:#a5261b;}
+
+/* 顺口溜 */
+.rhyme{font-size:2.2rem;line-height:2;color:var(--blue-deep);font-weight:700;text-align:center;}
+.rhyme .hl{color:var(--warm-deep);}
+
+/* 步骤条 */
+.steps{display:flex;flex-direction:column;gap:.9rem;}
+.step{display:flex;align-items:center;gap:1rem;background:#fff;border-radius:14px;padding:.7em 1em;border:2px solid var(--blue-line);font-size:1.6rem;box-shadow:0 4px 12px rgba(26,58,107,.06);}
+.step .num{background:var(--blue);color:#fff;width:1.9em;height:1.9em;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.3rem;flex-shrink:0;}
+
+/* 可复制代码卡 */
+.ask-box{
+  background:#fff;border:3px dashed var(--blue-mid);border-radius:18px;
+  padding:1.2em 1.4em;font-size:1.55rem;line-height:1.75;color:var(--ink);
+  box-shadow:0 8px 22px rgba(26,58,107,.1);
+}
+.ask-box .q{color:var(--blue);font-weight:800;}
+
+/* 假消息真实例子气泡 */
+.example{
+  background:#fff6e0;
+  border:2px solid #f0cf8a;
+  border-left:8px solid var(--warm-deep);
+  border-radius:14px;
+  padding:.65em .95em;
+  box-shadow:0 5px 14px rgba(224,138,30,.14);
+}
+.example .tag{
+  display:inline-block;
+  background:var(--warm-deep);color:#fff;
+  font-size:1.15rem;font-weight:800;
+  padding:.12em .7em;border-radius:999px;margin-bottom:.4em;
+}
+.example .msg{font-size:1.5rem;line-height:1.5;color:#4a3810;font-weight:600;}
+.example .flaw{
+  font-size:1.25rem;line-height:1.4;color:var(--red);font-weight:700;
+  margin-top:.45em;border-top:1px dashed #e0b877;padding-top:.4em;
+}
+
+/* ============ 练习题：点击揭晓 ============ */
+.quiz{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:center;height:100%;}
+.quiz-q{display:flex;flex-direction:column;gap:1.1rem;justify-content:center;}
+.quiz-msg{
+  background:#fff;border:3px solid var(--blue-line);border-radius:16px;
+  padding:1em 1.2em;font-size:1.75rem;line-height:1.55;color:var(--ink);font-weight:600;
+  box-shadow:0 6px 18px rgba(26,58,107,.08);position:relative;
+}
+.quiz-msg::before{
+  content:"📱 群消息";position:absolute;top:-.9em;left:1em;
+  background:var(--blue);color:#fff;font-size:1.1rem;font-weight:800;
+  padding:.12em .8em;border-radius:999px;
+}
+.think{font-size:1.5rem;color:var(--ink-soft);font-weight:600;}
+.reveal-btn{
+  background:var(--warm);color:#3a2600;border:3px solid var(--warm-deep);
+  font-size:1.9rem;font-weight:900;padding:.55em 1em;border-radius:16px;
+  cursor:pointer;box-shadow:0 8px 22px rgba(224,138,30,.3);
+  transition:transform .15s,box-shadow .15s;font-family:inherit;
+}
+.reveal-btn:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(224,138,30,.4);}
+.reveal-btn:active{transform:translateY(0);}
+.answer{
+  background:var(--blue-soft);border:2px solid var(--blue-line);border-left:8px solid var(--green);
+  border-radius:16px;padding:1.1em 1.3em;
+  max-height:0;opacity:0;overflow:hidden;padding-top:0;padding-bottom:0;border-width:0;border-left-width:0;
+  transition:max-height .5s ease,opacity .4s ease,padding .4s ease;
+}
+.answer.show{max-height:600px;opacity:1;padding-top:1.1em;padding-bottom:1.1em;border-width:2px;border-left-width:8px;}
+.answer .atitle{font-size:1.6rem;font-weight:900;color:var(--green);margin-bottom:.5em;}
+.answer .aitem{font-size:1.45rem;line-height:1.5;color:var(--ink);margin:.3em 0;display:flex;gap:.5em;}
+.answer .aitem .x{color:var(--red);font-weight:900;flex-shrink:0;}
+.quiz-badge{
+  display:inline-block;background:var(--green);color:#fff;
+  font-size:1.4rem;font-weight:800;padding:.2em .9em;border-radius:999px;margin-bottom:.3em;width:fit-content;
+}
+
+/* 页眉小吉祥物 */
+.mini-mascot{position:absolute;top:3.2vh;right:4vw;width:9vh;height:9vh;border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:0 6px 16px rgba(26,58,107,.2);background:#fff;z-index:3;}
+
+/* 图片占位（图未生成时的友好底） */
+.ph{
+  width:100%;max-width:640px;aspect-ratio:3/2;
+  background:repeating-linear-gradient(45deg,#e8f1fb,#e8f1fb 22px,#dfeafa 22px,#dfeafa 44px);
+  border-radius:22px;border:5px solid #fff;outline:2px solid var(--blue-line);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--blue);font-size:1.5rem;font-weight:700;text-align:center;
+  box-shadow:var(--shadow);
+}
+
+@media (max-width:900px){
+  h1{font-size:2.8rem;}
+  h2{font-size:2.1rem;}
+  .lead{font-size:1.5rem;}
+  p,.card{font-size:1.35rem;}
+  .two-col{grid-template-columns:1fr;gap:1.2rem;overflow-y:auto;}
+  .quiz{grid-template-columns:1fr;gap:1.2rem;overflow-y:auto;}
+  .figure img{max-height:38vh;}
+  .punch{font-size:1.7rem;}
+  .mantra .word{font-size:2.2rem;}
+  .mini-mascot{width:7vh;height:7vh;}
+}

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI时代假消息快速判断指南 · 给爸妈的贴心课</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  /* index 播放器外壳专用样式（页面内容样式都在 assets/style.css） */
+  html,body{height:100%;margin:0;background:var(--blue-deep);overflow:hidden;}
+  #stage{position:fixed;inset:0;width:100vw;height:100vh;border:0;background:#fff;}
+
+  /* 导航按钮 */
+  .nav-btn{
+    position:fixed;top:50%;transform:translateY(-50%);
+    width:74px;height:74px;border-radius:50%;
+    background:rgba(255,255,255,.92);
+    border:3px solid var(--blue);color:var(--blue);
+    font-size:2.4rem;font-weight:900;cursor:pointer;z-index:50;
+    box-shadow:0 8px 24px rgba(26,58,107,.25);
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .15s,background .15s;user-select:none;
+  }
+  .nav-btn:hover{background:var(--blue);color:#fff;transform:translateY(-50%) scale(1.08);}
+  .nav-btn:active{transform:translateY(-50%) scale(.95);}
+  .nav-btn.prev{left:2.5vw;}
+  .nav-btn.next{right:2.5vw;}
+  .nav-btn:disabled{opacity:.25;cursor:default;}
+
+  .dots{
+    position:fixed;bottom:2.4vh;left:50%;transform:translateX(-50%);
+    display:flex;gap:.6rem;z-index:50;
+    background:rgba(255,255,255,.75);padding:.6rem 1rem;border-radius:999px;
+    box-shadow:0 4px 16px rgba(26,58,107,.15);
+    max-width:80vw;flex-wrap:wrap;justify-content:center;
+  }
+  .dot{width:15px;height:15px;border-radius:50%;background:var(--blue-line);cursor:pointer;transition:transform .15s,background .15s;border:none;padding:0;}
+  .dot.active{background:var(--blue);transform:scale(1.35);}
+
+  .page-num{
+    position:fixed;bottom:2.8vh;right:3vw;z-index:50;
+    font-size:1.4rem;font-weight:800;color:var(--blue);
+    background:rgba(255,255,255,.85);padding:.25em .8em;border-radius:999px;
+    box-shadow:0 3px 10px rgba(26,58,107,.12);
+  }
+  .hint{
+    position:fixed;bottom:2.8vh;left:3vw;z-index:50;
+    font-size:1.25rem;color:var(--ink-soft);
+    background:rgba(255,255,255,.8);padding:.3em .8em;border-radius:999px;
+    box-shadow:0 3px 10px rgba(26,58,107,.1);
+  }
+  /* 清单为空时的提示 */
+  #empty{
+    position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+    flex-direction:column;gap:1rem;text-align:center;color:var(--ink-soft);
+    font-size:1.6rem;padding:2rem;background:var(--paper);
+  }
+  /* 缺页提示：盖在 iframe 上，默认隐藏 */
+  #missOverlay{
+    position:fixed;inset:0;z-index:20;display:none;
+    flex-direction:column;align-items:center;justify-content:center;gap:14px;
+    text-align:center;padding:24px;background:var(--paper2);
+  }
+</style>
+</head>
+<body>
+
+<iframe id="stage" title="幻灯片" src="about:blank"></iframe>
+
+<!-- 缺页提示：某页文件被删、但 slides.js 里还留着那一行时显示 -->
+<div id="missOverlay">
+  <div style="font-size:1.7rem;font-weight:800;color:var(--blue)">这一页暂时打不开</div>
+  <div style="font-size:1.2rem;color:var(--ink-soft)">找不到文件 <b id="missFile"></b></div>
+  <div style="font-size:1.05rem;color:#8291a3;max-width:520px">如果是有意删除，请到 <b>slides.js</b> 里把对应那一行也删掉，这个提示就会消失，整份幻灯片其余页面不受影响。</div>
+</div>
+
+<button class="nav-btn prev" id="prevBtn" aria-label="上一页">‹</button>
+<button class="nav-btn next" id="nextBtn" aria-label="下一页">›</button>
+<div class="dots" id="dots"></div>
+<div class="page-num" id="pageNum"></div>
+<div class="hint">← → 键翻页 · 手机可左右滑</div>
+<div id="empty">
+  <div>还没有可显示的页面。</div>
+  <div style="font-size:1.2rem">请检查 <b>slides.js</b> 里的清单，或往 <b>slides/</b> 里添加页面。</div>
+</div>
+
+<!-- 页面清单：唯一的“目录”。改这里即可增删 / 排序页面 -->
+<script src="slides.js"></script>
+<script>
+  var stage   = document.getElementById('stage');
+  var prevBtn = document.getElementById('prevBtn');
+  var nextBtn = document.getElementById('nextBtn');
+  var dotsWrap= document.getElementById('dots');
+  var pageNum = document.getElementById('pageNum');
+  var emptyEl = document.getElementById('empty');
+
+  var LIST = (window.SLIDES || []).slice();
+  var idx = 0;
+  var pageLoaded = false;   // 当前页是否已「报到」
+  var missTimer = null;     // 缺页检测计时器
+  var missOverlay = document.getElementById('missOverlay');
+  var missFile = document.getElementById('missFile');
+
+  if (!LIST.length) {
+    // 没有任何页面：显示友好提示，隐藏控件
+    emptyEl.style.display = 'flex';
+    prevBtn.style.display = nextBtn.style.display = dotsWrap.style.display = pageNum.style.display = 'none';
+  } else {
+    buildDots();
+    // 支持用地址 #3 直接跳到第 3 页
+    var hash = parseInt((location.hash || '').replace('#',''), 10);
+    if (hash >= 1 && hash <= LIST.length) idx = hash - 1;
+    go(idx);
+  }
+
+  function buildDots(){
+    dotsWrap.innerHTML = '';
+    LIST.forEach(function(item, i){
+      var b = document.createElement('button');
+      b.className = 'dot';
+      b.setAttribute('aria-label', (i+1) + ' ' + (item.title||''));
+      b.title = (i+1) + '. ' + (item.title||'');
+      b.addEventListener('click', function(){ go(i); });
+      dotsWrap.appendChild(b);
+    });
+  }
+
+  function go(n){
+    idx = Math.max(0, Math.min(LIST.length - 1, n));
+    missOverlay.style.display = 'none';       // 先藏起「缺页」提示
+    pageLoaded = false;
+    stage.src = 'slides/' + LIST[idx].file;   // iframe 导航（file:// 下也可用）
+    Array.prototype.forEach.call(dotsWrap.children, function(d, i){
+      d.classList.toggle('active', i === idx);
+    });
+    prevBtn.disabled = (idx === 0);
+    nextBtn.disabled = (idx === LIST.length - 1);
+    pageNum.textContent = (idx + 1) + ' / ' + LIST.length;
+    try { history.replaceState(null, '', '#' + (idx + 1)); } catch(e){}
+    // 容错：正常页面会通过 slide.js 向外层「报到」。
+    // 若一小段时间内没收到报到，说明这一页文件多半被删了 —— 显示友好提示，
+    // 而不是浏览器那个破图标。（清单里删掉对应行即可让提示消失。）
+    var expect = idx;
+    clearTimeout(missTimer);
+    missTimer = setTimeout(function(){
+      if (!pageLoaded && idx === expect) {
+        var item = LIST[idx] || {};
+        missFile.textContent = 'slides/' + (item.file || '?');
+        missOverlay.style.display = 'flex';
+      }
+    }, 500);
+  }
+  function next(){ if (idx < LIST.length - 1) go(idx + 1); }
+  function prev(){ if (idx > 0) go(idx - 1); }
+
+  prevBtn.addEventListener('click', prev);
+  nextBtn.addEventListener('click', next);
+
+  // 外壳自己的键盘（当焦点在外壳而非 iframe 内时）
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { next(); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { prev(); e.preventDefault(); }
+    else if (e.key === 'Home') { go(0); }
+    else if (e.key === 'End') { go(LIST.length - 1); }
+  });
+
+  // 接收来自子页面（iframe 内）转发的翻页操作
+  window.addEventListener('message', function(e){
+    var m = e.data || {};
+    if (m.__slideLoaded) {          // 页面报到成功
+      pageLoaded = true;
+      missOverlay.style.display = 'none';
+      return;
+    }
+    var d = m.__slideNav;
+    if (!d) return;
+    if (d === 'next') next();
+    else if (d === 'prev') prev();
+    else if (d === 'first') go(0);
+    else if (d === 'last') go(LIST.length - 1);
+  });
+
+  // 外壳自身的触摸滑动（点在按钮/圆点以外的区域）
+  var tsX=0, tsY=0;
+  document.addEventListener('touchstart', function(e){
+    tsX=e.changedTouches[0].clientX; tsY=e.changedTouches[0].clientY;
+  }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    var dx=e.changedTouches[0].clientX-tsX, dy=e.changedTouches[0].clientY-tsY;
+    if (Math.abs(dx)>50 && Math.abs(dx)>Math.abs(dy)) { dx<0?next():prev(); }
+  }, {passive:true});
+
+  // 外壳滚轮翻页（防抖）
+  var wheelLock=false;
+  window.addEventListener('wheel', function(e){
+    if (wheelLock) return;
+    if (Math.abs(e.deltaY)<30 && Math.abs(e.deltaX)<30) return;
+    wheelLock=true;
+    (e.deltaY>0||e.deltaX>0)?next():prev();
+    setTimeout(function(){ wheelLock=false; }, 600);
+  }, {passive:true});
+</script>
+</body>
+</html>
